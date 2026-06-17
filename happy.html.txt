@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>汪汪送信 · 生日快乐</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #2d1b0e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Press Start 2P', 'Courier New', monospace;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        .screen {
+            width: 100%;
+            max-width: 420px;
+            height: 100vh;
+            max-height: 820px;
+            position: relative;
+            background: #87ceeb;
+            overflow: hidden;
+            box-shadow: 0 0 0 4px #5a3a1a, 0 0 0 8px #2d1b0e;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        /* === 场景一：草地与天空 === */
+        #scene1 {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #6bb5e0 0%, #a8d8ea 65%, #7ec850 65%, #5da832 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        .grass {
+            width: 100%;
+            height: 35%;
+            background: #5da832;
+            position: absolute;
+            bottom: 0;
+            box-shadow: inset 0 8px 0 #4a8a22;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        /* 像素小草装饰 */
+        .grass::before {
+            content: "";
+            position: absolute;
+            top: -12px;
+            left: 15%;
+            width: 16px;
+            height: 20px;
+            background: #6ec542;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+        .grass::after {
+            content: "";
+            position: absolute;
+            top: -8px;
+            right: 20%;
+            width: 12px;
+            height: 16px;
+            background: #6ec542;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        /* === 小狗容器 === */
+        .dog-container {
+            position: absolute;
+            bottom: 22%;
+            left: -60px;
+            transition: transform 0.25s steps(3);
+            z-index: 10;
+        }
+        /* 像素狗身体 */
+        .dog {
+            width: 48px;
+            height: 36px;
+            position: relative;
+            image-rendering: pixelated;
+        }
+        .dog-body {
+            width: 36px;
+            height: 24px;
+            background: #2b2b2b;
+            position: absolute;
+            bottom: 0;
+            left: 6px;
+            border-radius: 4px 4px 0 0;
+            box-shadow: 0 4px 0 #1a1a1a;
+        }
+        .dog-head {
+            width: 24px;
+            height: 20px;
+            background: #2b2b2b;
+            position: absolute;
+            top: 2px;
+            left: 0;
+            border-radius: 6px 6px 2px 2px;
+        }
+        .dog-ear {
+            width: 8px;
+            height: 12px;
+            background: #1a1a1a;
+            position: absolute;
+            top: -8px;
+            left: 4px;
+            border-radius: 4px 4px 0 0;
+            transform: rotate(-10deg);
+        }
+        .dog-eye {
+            width: 4px;
+            height: 4px;
+            background: white;
+            position: absolute;
+            top: 6px;
+            left: 12px;
+            box-shadow: 0 0 0 1px #000;
+        }
+        .dog-nose {
+            width: 6px;
+            height: 4px;
+            background: #ff8888;
+            position: absolute;
+            top: 10px;
+            left: 4px;
+        }
+        .dog-tail {
+            width: 8px;
+            height: 10px;
+            background: #2b2b2b;
+            position: absolute;
+            right: -2px;
+            top: 4px;
+            border-radius: 50%;
+            transform: rotate(20deg);
+            animation: tailWag 0.3s infinite alternate;
+        }
+        @keyframes tailWag {
+            0% { transform: rotate(10deg); }
+            100% { transform: rotate(35deg); }
+        }
+        /* 信封（嘴里叼着） */
+        .envelope-mouth {
+            width: 16px;
+            height: 12px;
+            background: #fff5e6;
+            position: absolute;
+            top: 14px;
+            left: 0px;
+            border: 2px solid #d4a574;
+            transform: rotate(-5deg);
+        }
+        .envelope-heart {
+            width: 8px;
+            height: 8px;
+            background: #ff5e5e;
+            position: absolute;
+            top: -2px;
+            right: 2px;
+            clip-path: polygon(50% 15%, 65% 0%, 100% 20%, 85% 55%, 50% 100%, 15% 55%, 0% 20%, 35% 0%);
+        }
+
+        /* 提示文字 */
+        .hint {
+            position: absolute;
+            bottom: 15%;
+            color: #fff;
+            background: rgba(0,0,0,0.6);
+            padding: 6px 16px;
+            font-size: 12px;
+            letter-spacing: 2px;
+            border: 2px solid #fff;
+            z-index: 20;
+            pointer-events: none;
+            image-rendering: pixelated;
+        }
+
+        /* === 场景二：擦口水信封 === */
+        #scene2 {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #f5e0c3;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            touch-action: none;
+        }
+        .envelope-dirty {
+            width: 200px;
+            height: 140px;
+            background: #fae5c2;
+            position: relative;
+            border: 4px solid #c9a67b;
+            box-shadow: 0 8px 0 #b08968, inset 0 0 0 4px #fae5c2;
+            cursor: pointer;
+            touch-action: none;
+        }
+        /* 蓝色口水渍 */
+        .slobber {
+            position: absolute;
+            width: 60px;
+            height: 24px;
+            background: rgba(100, 180, 255, 0.7);
+            border-radius: 50%;
+            top: 40px;
+            left: 30px;
+            filter: blur(2px);
+            transition: opacity 0.3s;
+        }
+        .slobber:nth-child(2) {
+            width: 45px;
+            height: 18px;
+            top: 70px;
+            left: 80px;
+            background: rgba(80, 160, 240, 0.75);
+            border-radius: 45%;
+        }
+        .slobber:nth-child(3) {
+            width: 35px;
+            height: 14px;
+            top: 50px;
+            left: 110px;
+            background: rgba(90, 170, 245, 0.65);
+            border-radius: 40%;
+        }
+        .swipe-hint {
+            margin-top: 30px;
+            color: #5a3a1a;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+
+        /* === 场景三：祝福内容 === */
+        #scene3 {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #fff9f0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px;
+        }
+        .final-message {
+            font-size: 22px;
+            color: #4a2c2c;
+            line-height: 2;
+        }
+        .big-emoji {
+            font-size: 60px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="screen" id="mainScreen">
+    <!-- 场景一：小狗跑来 -->
+    <div id="scene1">
+        <div class="grass"></div>
+        <div class="dog-container" id="dogBox">
+            <div class="dog">
+                <div class="dog-ear"></div>
+                <div class="dog-head">
+                    <div class="dog-eye"></div>
+                    <div class="dog-nose"></div>
+                    <div class="envelope-mouth">
+                        <div class="envelope-heart"></div>
+                    </div>
+                </div>
+                <div class="dog-body">
+                    <div class="dog-tail"></div>
+                </div>
+            </div>
+        </div>
+        <div class="hint" id="clickHint">✨ 点击呼唤小狗 ✨</div>
+    </div>
+
+    <!-- 场景二：擦口水信封 -->
+    <div id="scene2">
+        <div class="envelope-dirty" id="dirtyEnvelope">
+            <div class="slobber" style="top:30px;left:20px;width:70px;height:20px;"></div>
+            <div class="slobber" style="top:55px;left:70px;width:60px;height:16px;"></div>
+            <div class="slobber" style="top:85px;left:100px;width:50px;height:14px;"></div>
+            <div class="slobber" style="top:40px;left:110px;width:40px;height:18px;"></div>
+        </div>
+        <div class="swipe-hint">🐾 用手指擦掉口水 🐾</div>
+    </div>
+
+    <!-- 场景三：生日快乐 -->
+    <div id="scene3">
+        <div class="final-message">
+            <div>🎂🎂</div>
+            <div>祝你生日快乐</div>
+            <div>(＾◡＾)っ✉️</div>
+            <div class="big-emoji">🫂</div>
+            <div style="font-size:14px;color:#a98467;margin-top:20px;">— 爱你的哥哥/姐姐 —</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // 场景元素
+        const scene1 = document.getElementById('scene1');
+        const scene2 = document.getElementById('scene2');
+        const scene3 = document.getElementById('scene3');
+        const dogBox = document.getElementById('dogBox');
+        const clickHint = document.getElementById('clickHint');
+        const dirtyEnvelope = document.getElementById('dirtyEnvelope');
+
+        // 状态
+        let clickCount = 0;
+        let swipesLeft = 2;
+        const dogPositions = [
+            { left: '-40px', bottom: '20%', scale: 0.7 },   // 远处
+            { left: '25%', bottom: '22%', scale: 0.9 },     // 中间，跳起
+            { left: '60%', bottom: '24%', scale: 1.1 }      // 近处
+        ];
+
+        // BGM 生日快乐纯音乐 (无版权钢琴版)
+        const bgMusic = new Audio('https://cdn.jsdelivr.net/gh/hungryExplorer/static@main/happy-birthday-piano.mp3');
+        bgMusic.loop = false;
+        bgMusic.volume = 0.7;
+        // 备用链接若失效，可替换为其他直链
+
+        // === 场景一：三次点击 ===
+        function moveDog(step) {
+            if (step >= dogPositions.length) {
+                // 小狗到达，切换场景
+                scene1.style.display = 'none';
+                scene2.style.display = 'flex';
+                return;
+            }
+            const pos = dogPositions[step];
+            dogBox.style.left = pos.left;
+            dogBox.style.bottom = pos.bottom;
+            dogBox.style.transform = `scale(${pos.scale})`;
+
+            // 跳跃动效 (第二帧跳起)
+            if (step === 1) {
+                dogBox.style.transition = 'left 0.3s steps(4), bottom 0.2s, transform 0.25s';
+                dogBox.style.bottom = '28%';
+                setTimeout(() => {
+                    dogBox.style.bottom = pos.bottom;
+                }, 180);
+            } else {
+                dogBox.style.transition = 'left 0.35s steps(4), bottom 0.2s, transform 0.25s';
+            }
+        }
+
+        scene1.addEventListener('click', (e) => {
+            if (clickCount < 3) {
+                clickCount++;
+                moveDog(clickCount - 1);
+                if (clickCount === 1) clickHint.textContent = '🐕 再点一次！';
+                if (clickCount === 2) clickHint.textContent = '🐾 快到了！';
+            }
+        });
+
+        // === 场景二：擦口水 ===
+        let isSwiping = false;
+        let slobbers = document.querySelectorAll('.slobber');
+
+        function handleSwipe(e) {
+            e.preventDefault();
+            if (swipesLeft <= 0) return;
+
+            const touch = e.touches ? e.touches[0] : e;
+            const x = touch.clientX;
+            const y = touch.clientY;
+
+            slobbers.forEach(slob => {
+                const rect = slob.getBoundingClientRect();
+                if (x >= rect.left && x <= rect.right &&
+                    y >= rect.top && y <= rect.bottom) {
+                    slob.style.opacity = '0';
+                    slob.style.transition = 'opacity 0.2s';
+                    swipesLeft--;
+                }
+            });
+
+            if (swipesLeft <= 0 || document.querySelectorAll('.slobber[style*="opacity: 0"]').length >= 4) {
+                // 所有口水擦除，打开信封
+                setTimeout(() => {
+                    scene2.style.display = 'none';
+                    scene3.style.display = 'flex';
+                    // 播放BGM
+                    bgMusic.play().catch(() => {
+                        // 浏览器限制自动播放，用户可手动触发
+                        console.log('点击任意位置播放音乐');
+                    });
+                }, 600);
+            }
+        }
+
+        dirtyEnvelope.addEventListener('touchmove', handleSwipe, {passive: false});
+        dirtyEnvelope.addEventListener('mousemove', (e) => {
+            if (e.buttons === 1) handleSwipe(e);
+        });
+
+        // 如果音频加载失败静默处理
+        bgMusic.addEventListener('error', () => {
+            console.log('BGM加载失败，但不影响页面使用');
+        });
+
+        // 为保证移动端体验，阻止双击缩放
+        document.addEventListener('dblclick', (e) => e.preventDefault());
+    })();
+</script>
+</body>
+</html>
